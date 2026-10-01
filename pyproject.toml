@@ -9,6 +9,13 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.142.2",
+    "langchain-core>=1.6.6",
+    "langchain-openai>=1.6.7",
+    "langgraph>=1.2.12",
+    "langsmith>=0.14.2",
+    "pydantic>=2",
+    "pydantic-settings>=2.15.0",
+    "uvicorn>=0.54.0",
 ]
 
 [project.scripts]
@@ -17,3 +24,15 @@ agentefinanciero = "agentefinanciero:main"
 [build-system]
 requires = ["uv_build>=0.12.21,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]
