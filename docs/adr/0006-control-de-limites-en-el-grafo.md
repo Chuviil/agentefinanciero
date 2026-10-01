@@ -1,6 +1,6 @@
 # ADR-0006: Control de límites en el estado del grafo (nodo `guard`)
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (implementado y probado)
 - **Fecha:** 2026-10-01
 - **Reemplaza:** decisión inicial "Presupuesto: limiter de LangGraph y controlar excepción".
 - **Amplía:** decisión inicial "Límites: implementación nativa con rate limiter y configuraciones del grafo".

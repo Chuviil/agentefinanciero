@@ -1,6 +1,8 @@
 # ADR-0007: Timeout global y recuperación de estado
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (implementado y probado). El checkpointer registra explícitamente los tipos de
+  dominio que guarda en el estado (`build_checkpointer`), porque LangGraph bloqueará en el futuro la
+  deserialización de tipos no registrados.
 - **Fecha:** 2026-10-01
 
 ## Contexto

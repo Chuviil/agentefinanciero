@@ -1,6 +1,7 @@
 # ADR-0004: Estimación previa de costo por último costo observado
 
-- **Estado:** Aceptado
+- **Estado:** Aceptado — **implementación diferida**. El MVP estima cada llamada con un valor fijo,
+  `INITIAL_CALL_ESTIMATE_TOKENS`, valorizado al precio de salida, y no registra `overshoot_*`.
 - **Fecha:** 2026-10-01
 
 ## Contexto

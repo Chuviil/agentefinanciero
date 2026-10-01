@@ -1,6 +1,10 @@
 # Arquitectura — Agente de Análisis Financiero
 
 Este documento describe la arquitectura del agente de análisis financiero y explica por qué se diseñó así.
+
+> **Estado de implementación:** el presupuesto es por request. El acumulado por sesión
+> (`SessionBudgetRepositoryPort`, HTTP 409, `overshoot_*`) está diferido (ADR-0001/0003/0004/0010).
+> El código vive en `src/agentefinanciero/`; las rutas `app/...` de los diagramas se leen con ese prefijo.
 Parte del borrador inicial y lo convierte en un diseño hexagonal que controla costo, pasos y tiempo
 desde el núcleo de la aplicación.
 
@@ -160,12 +164,15 @@ excedió) a duro (no se excede).
 restante. Al recibir la respuesta, lee `usage_metadata`, calcula el costo con `TokenPricing` y actualiza el
 `Budget` en el estado.
 
-**`route_after_agent`** decide el siguiente nodo. Si el LLM pidió tools, primero consulta al
-`CircuitBreaker`: si la firma `(tool, args)` ya se repitió el máximo permitido, el flujo va a
+**`route_after_agent`** decide el siguiente nodo leyendo el estado. El nodo `agent` ya registró las llamadas
+pedidas en el `CircuitBreaker` (una arista condicional no puede modificar el estado) y, si la firma
+`(tool, args)` alcanzó el máximo permitido, dejó `stop_reason = loop_detected`: el flujo va a
 `finalize_partial` sin ejecutar la tool. Así se corta el bucle antes de pagar otra vuelta.
 
-**`tool_caller`** ejecuta las tools y vuelve a `guard`, no a `agent`. Al cerrar el paso se emite el
-`StepMetric` correspondiente.
+**`tool_caller`** ejecuta las tools (envolviendo a `ToolNode`), registra en el breaker si cada resultado fue
+un error y vuelve a `guard`, no a `agent`. El `StepMetric` se emite en el nodo `agent`, al recibir la
+respuesta del LLM; su `elapsed_time` es acumulado desde el inicio del request, así que la latencia de las
+tools de un paso aparece en el `elapsed_time` del siguiente.
 
 **`finalize_partial`** arma la respuesta parcial con los datos que las tools ya devolvieron y la advertencia
 del motivo de corte. No llama al LLM, porque si el presupuesto se agotó no debería gastarse más para

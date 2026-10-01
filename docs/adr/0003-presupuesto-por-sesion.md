@@ -1,6 +1,6 @@
 # ADR-0003: Alcance del presupuesto por sesión
 
-- **Estado:** Aceptado
+- **Estado:** Aceptado — **implementación diferida** (el MVP aplica el presupuesto por request)
 - **Fecha:** 2026-10-01
 
 ## Contexto

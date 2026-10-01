@@ -22,10 +22,14 @@ Dentro de alcance:
 Fuera de alcance: autenticación, base de datos, UI, APIs financieras reales, memoria de
 conversación entre requests, herramientas adicionales, colas, caché.
 
+Diferido (descrito en ADR-0003/0004/0010, no implementado): presupuesto acumulado por sesión
+(`SessionBudgetRepositoryPort`, HTTP 409, `SESSION_TTL_MINUTES`, `overshoot_*`, `budget.scope`).
+Hoy el presupuesto es **por request**.
+
 ## Stack
 - Python 3.13+, FastAPI, Pydantic v2, pydantic-settings
 - LangGraph (`StateGraph`, `ToolNode`, checkpointer en memoria)
-- LangChain (chat model con `rate_limiter`, `@tool`)
+- LangChain (`AzureChatOpenAI` con gpt-5-mini en Azure AI Foundry, ADR-0002, con `rate_limiter`; `@tool`)
 - LangSmith (tracing nativo vía variables de entorno)
 - pytest + httpx para pruebas
 
@@ -82,17 +86,20 @@ flowchart TD
 
 Reglas del flujo:
 - `guard` se ejecuta antes de CADA llamada al LLM. Ninguna ruta llega a `agent` sin pasar por `guard`.
-- `guard` y `route_after_agent` solo leen el estado y delegan la decisión en `domain/policies.py`.
+- Las decisiones de corte viven en `domain/policies.py`: el nodo `guard` delega en `ExecutionGuard`; el nodo
+  `agent` registra las llamadas pedidas en `CircuitBreaker` y deja `stop_reason` en el estado.
+  `route_after_guard` y `route_after_agent` solo leen el estado (una arista condicional no puede modificarlo).
 - `finalize_partial` arma la respuesta a partir de los resultados de tools ya obtenidos, sin llamar al LLM.
 - Orden de evaluación en `guard`: errores consecutivos → presupuesto USD → tokens → pasos.
 
 ## Estructura del proyecto
+El paquete vive en `src/agentefinanciero/` (layout de uv); los imports son `agentefinanciero.domain...`, etc.
 ```
-app/
+src/agentefinanciero/
   domain/
-    models.py            # Budget, StepMetric, AnalysisResult, ExecutionLimits, StopReason (dataclasses/enum)
-    policies.py          # ExecutionGuard, CircuitBreaker
-    pricing.py           # TokenPricing: costo a partir de tokens de entrada/salida
+    models.py            # Budget, StepMetric, AnalysisRequest/Context/Result, ExecutionLimits, StopReason (dataclasses/enum)
+    policies.py          # ExecutionGuard, CircuitBreaker (+ BreakerState inmutable)
+    pricing.py           # TokenPricing: costo a partir de tokens de entrada, cached y salida
     ratio.py             # cálculo puro de ratio (usado por la tool calculate_ratio)
   application/
     ports/
@@ -109,7 +116,9 @@ app/
         engine.py        # LangGraphAnalysisEngine: implementa AnalysisEnginePort; timeout y recuperación de estado
         graph.py         # construcción y compilación del StateGraph
         state.py         # AgentState (TypedDict)
-        nodes.py         # guard, agent, finalize_partial
+        nodes.py         # guard, agent, tool_caller (envuelve ToolNode), finalize_partial
+        partial.py       # arma respuesta y advertencia parciales en español, sin LLM
+        llm.py           # fábrica de AzureChatOpenAI y del rate limiter
         routing.py       # route_after_guard, route_after_agent
         tools.py         # @tool search_financial_data, calculate_ratio (delegan en puertos/dominio)
       data/
@@ -123,7 +132,8 @@ app/
     container.py         # wiring de dependencias
   main.py                # crea la app FastAPI y llama al container
 tests/
-  unit/                  # dominio y casos de uso, con dobles de los puertos
+  fakes.py               # FakeChatModel determinista, compartido por integration y api
+  unit/                  # dominio, casos de uso, adaptadores simples y regla de dependencias
   integration/           # grafo con chat model falso
   api/                   # endpoint con httpx
 ```
@@ -163,15 +173,19 @@ HTTP 422 solo para requests inválidos. Ningún límite alcanzado produce un 5xx
 Reglas:
 - Un **paso** = una ejecución del nodo `agent` (una llamada al LLM) más las tools que esa llamada dispare.
 - Se detiene con el **primer** límite que se alcance (USD o tokens, lo que ocurra antes).
-- `guard` estima el costo de la siguiente llamada; si el restante no alcanza, no se llama al LLM.
-- `max_tokens` de cada llamada al LLM se acota al presupuesto de tokens restante.
+- `guard` estima el costo de la siguiente llamada con un valor fijo (`INITIAL_CALL_ESTIMATE_TOKENS`, valorizado
+  al precio de salida); si el restante no alcanza, no se llama al LLM.
+- El límite de salida de cada llamada (`max_completion_tokens`, por ser un modelo de razonamiento) se acota al
+  presupuesto de tokens restante. Si la respuesta llega vacía con `finish_reason = length` → `token_budget_exceeded`.
 - El control principal es el estado del grafo. `GraphRecursionError` y `asyncio.TimeoutError` son respaldo.
 - Ante esas excepciones, el engine recupera el último estado con `graph.get_state(config)` y devuelve respuesta parcial.
 - `thread_id` del checkpointer = `f"{session_id}:{request_id}"`, para que los requests de una misma sesión no compartan estado.
 
 ## Circuit breaker (`domain/policies.py`)
 - Firma de llamada = `(tool_name, args normalizados)`.
-- Si la misma firma se repite `CB_MAX_REPEATS` veces (default 2) → `loop_detected`; la tool no se ejecuta.
+- Si la misma firma alcanza `CB_MAX_REPEATS` apariciones, contando la actual (default 2: la **segunda** llamada
+  idéntica) → `loop_detected`; la tool no se ejecuta.
+- Los args se normalizan (strings sin espacios y en minúsculas, `1.0` ≡ `1`, claves ordenadas).
 - `CB_MAX_CONSECUTIVE_ERRORS` errores de tool consecutivos (default 3) → `tool_errors`.
 - El estado del breaker vive en `AgentState` y dura un solo request.
 
@@ -185,6 +199,7 @@ Reglas:
   - La tool delega en `domain/ratio.py`
   - Retorna `{"result": numerator / denominator}`; `denominator == 0` → `{"error": "division by zero"}`
 - Las tools no consumen tokens: costo 0; su latencia queda en `elapsed_time`.
+- Un resultado `{"error": ...}` cuenta como error de tool para el circuit breaker.
 
 ## Métricas FinOps
 `StepMetric` (dominio) por cada paso:
@@ -193,18 +208,26 @@ step_number, tool_called (lista o null), tokens_used, cumulative_tokens,
 step_cost_usd, cumulative_cost, remaining_budget_usd, elapsed_time
 ```
 - `tokens_used` sale exclusivamente de `AIMessage.usage_metadata` (input + output). La estimación previa solo se usa en `guard`.
-- Costo = `input_tokens * PRICE_INPUT_PER_MTOK / 1e6 + output_tokens * PRICE_OUTPUT_PER_MTOK / 1e6`, calculado por `TokenPricing`.
+- `elapsed_time` es acumulado desde el inicio del request, medido al terminar la llamada al LLM del paso
+  (la latencia de las tools de un paso aparece en el `elapsed_time` del siguiente).
+- Costo = `((input − cached) * PRICE_INPUT_PER_MTOK + cached * PRICE_CACHED_INPUT_PER_MTOK + output * PRICE_OUTPUT_PER_MTOK) / 1e6`,
+  calculado por `TokenPricing` (ADR-0002). `cached` sale de `usage_metadata.input_token_details.cache_read`.
 - Se emite mediante `MetricsPort`; nunca se llama a `logging` ni a LangSmith directamente desde nodos o dominio.
   1. LangSmith: tracing nativo (`LANGSMITH_TRACING=true`); `analyst_id`, `session_id` y `request_id` van como `metadata` y `tags` en el `config` del invoke.
+     Sin `LANGSMITH_API_KEY` el container desactiva el tracing.
   2. Logs JSON a stdout: un evento `analysis_step` por paso y un evento `analysis_completed` final.
 - Si LangSmith no está disponible, el agente sigue funcionando y el log JSON se mantiene.
 
 ## Variables de entorno
 ```
-LLM_MODEL=
-LLM_API_KEY=
-PRICE_INPUT_PER_MTOK=
-PRICE_OUTPUT_PER_MTOK=
+AZURE_OPENAI_ENDPOINT=
+AZURE_OPENAI_API_KEY=
+AZURE_OPENAI_DEPLOYMENT=
+OPENAI_API_VERSION=
+LLM_REASONING_EFFORT=low
+PRICE_INPUT_PER_MTOK=0.25
+PRICE_CACHED_INPUT_PER_MTOK=0.025
+PRICE_OUTPUT_PER_MTOK=2.00
 LANGSMITH_TRACING=true
 LANGSMITH_API_KEY=
 LANGSMITH_PROJECT=financial-analysis-agent
@@ -214,14 +237,19 @@ TIMEOUT_GLOBAL_S=45
 RATE_LIMIT_RPS=
 CB_MAX_REPEATS=2
 CB_MAX_CONSECUTIVE_ERRORS=3
+INITIAL_CALL_ESTIMATE_TOKENS=2000
 ```
+Los precios son obligatorios (sin default); los de arriba son de referencia de OpenAI (ADR-0002) y deben
+validarse contra la tarifa de Azure del despliegue real.
 
 ## Comandos
 ```
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-pytest -q
+uv sync
+uv run uvicorn agentefinanciero.main:app --reload
+uv run pytest -q
 ```
+Si `uv sync` falla con "Access is denied" (proyecto dentro de OneDrive): `uv sync --inexact --no-install-project`
+y `uv run --no-sync ...`.
 
 ## Pruebas obligatorias
 - `tests/unit`: dominio sin frameworks (Budget, ExecutionGuard, CircuitBreaker, TokenPricing, ratio) y `RunAnalysisService` con dobles de los puertos.
@@ -236,6 +264,7 @@ Escenarios mínimos:
 - Timeout (con timeout reducido en test) → `timeout`
 - `calculate_ratio` con denominador 0
 - Cada respuesta incluye `steps` con todos los campos de `StepMetric`
+- `tests/unit/test_architecture.py` verifica la regla de dependencias entre capas
 
 ## Convenciones
 - Todo async de punta a punta.

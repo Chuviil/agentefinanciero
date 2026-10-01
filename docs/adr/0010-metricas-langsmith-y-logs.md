@@ -1,6 +1,9 @@
 # ADR-0010: Métricas FinOps en LangSmith y logs JSON
 
-- **Estado:** Aceptado (amplía la decisión inicial "Métricas: LangSmith logeado desde LangGraph")
+- **Estado:** Aceptado (amplía la decisión inicial "Métricas: LangSmith logeado desde LangGraph").
+  Los campos `overshoot_usd`/`overshoot_tokens` y los costos acumulados **de la sesión** están
+  **diferidos** (ADR-0003/0004); hoy `StepMetric` tiene 8 campos y los acumulados son por request.
+  `elapsed_time` es acumulado desde el inicio del request, medido al terminar la llamada al LLM del paso.
 - **Fecha:** 2026-10-01
 
 ## Contexto

@@ -1,6 +1,8 @@
 # ADR-0008: Circuit breaker para bucles y errores de tools
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (implementado y probado). Con `CB_MAX_REPEATS = 2`, la **segunda** llamada idéntica
+  ya abre el circuito (se cuenta la actual). El nodo `agent` registra las llamadas y fija `stop_reason`;
+  `route_after_agent` solo lo lee.
 - **Fecha:** 2026-10-01
 
 ## Contexto

@@ -1,6 +1,7 @@
 # ADR-0009: Respuesta parcial y contrato de la API
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (implementado y probado). Diferidos junto con ADR-0003: `budget.scope = "session"`
+  y el HTTP 409; el contrato actual omite `budget.scope` y el presupuesto es por request.
 - **Fecha:** 2026-10-01
 
 ## Contexto

@@ -1,6 +1,8 @@
 # ADR-0012: Estrategia de pruebas con chat model falso
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (implementado). Quedan fuera hasta que se implemente el presupuesto por sesión los
+  escenarios de `budget_exceeded` acumulado y HTTP 409. Se añadió `tests/unit/test_architecture.py`
+  para la regla de dependencias.
 - **Fecha:** 2026-10-01
 
 ## Contexto

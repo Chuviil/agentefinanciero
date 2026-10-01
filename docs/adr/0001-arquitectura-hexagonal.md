@@ -24,6 +24,12 @@ Se adopta arquitectura hexagonal (puertos y adaptadores):
 LangGraph es un **adaptador de salida**. Sus nodos son delgados: leen el estado y delegan las decisiones en
 el dominio.
 
+## Nota de implementación
+- `SessionBudgetRepositoryPort` e `InMemorySessionBudgetRepository` están **diferidos** (ver ADR-0003): hoy
+  el presupuesto es por request.
+- El paquete vive en `src/agentefinanciero/` en lugar de `app/`. La regla de dependencias se verifica con
+  `tests/unit/test_architecture.py`.
+
 ## Alternativas consideradas
 - **Arquitectura por capas con el grafo en el centro.** Más rápida de escribir, pero acopla las políticas
   de presupuesto a la API de LangGraph y obliga a probarlas a través del grafo.
