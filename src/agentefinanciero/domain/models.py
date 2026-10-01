@@ -18,6 +18,21 @@ class AnalysisStatus(StrEnum):
 
 
 @dataclass(frozen=True)
+class AnalysisRequest:
+    analyst_id: str
+    session_id: str
+    query: str
+    max_budget_usd: float
+
+
+@dataclass(frozen=True)
+class AnalysisContext:
+    analyst_id: str
+    session_id: str
+    request_id: str
+
+
+@dataclass(frozen=True)
 class ExecutionLimits:
     max_steps: int = 8
     max_tokens_budget: int = 10_000
