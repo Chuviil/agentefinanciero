@@ -1,0 +1,84 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0">
+  <diagram name="Página-1" id="32LYsMpd-raiV7vfRmIO">
+    <mxGraphModel dx="1022" dy="564" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-26" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="320" width="330" x="200" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-27" parent="Nl4rLFMiAEc3ASNfEBgi-26" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="320" width="330" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-34" parent="Nl4rLFMiAEc3ASNfEBgi-26" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="END" vertex="1">
+          <mxGeometry height="80" width="80" x="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-8" edge="1" parent="1" source="Nl4rLFMiAEc3ASNfEBgi-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=block;startFill=1;" target="Nl4rLFMiAEc3ASNfEBgi-7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Analista Financiero" vertex="1">
+          <mxGeometry height="60" width="30" x="70" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-4" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" value="Asistencia evaluación indicadores clave, etc." vertex="1">
+          <mxGeometry height="120" width="85" x="45" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-31" edge="1" parent="1" source="Nl4rLFMiAEc3ASNfEBgi-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Nl4rLFMiAEc3ASNfEBgi-30" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-7" parent="1" style="whiteSpace=wrap;html=1;verticalAlign=top;" value="Agente IA" vertex="1">
+          <mxGeometry height="60" width="120" x="200" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-13" edge="1" parent="1" source="Nl4rLFMiAEc3ASNfEBgi-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;" target="Nl4rLFMiAEc3ASNfEBgi-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-38" edge="1" parent="1" source="Nl4rLFMiAEc3ASNfEBgi-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="Nl4rLFMiAEc3ASNfEBgi-34" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="490" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-11" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="Agente Analisis Financiero" vertex="1">
+          <mxGeometry height="80" width="80" x="330" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-23" edge="1" parent="1" source="Nl4rLFMiAEc3ASNfEBgi-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="Nl4rLFMiAEc3ASNfEBgi-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-24" edge="1" parent="1" source="Nl4rLFMiAEc3ASNfEBgi-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="Nl4rLFMiAEc3ASNfEBgi-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-33" edge="1" parent="1" source="Nl4rLFMiAEc3ASNfEBgi-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="Nl4rLFMiAEc3ASNfEBgi-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-12" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="tool_caller" vertex="1">
+          <mxGeometry height="80" width="80" x="330" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-14" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" value="Consultas analisis financiero" vertex="1">
+          <mxGeometry height="100" width="80" x="45" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-15" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" value="rate_limit&lt;div&gt;timeout&lt;/div&gt;&lt;div&gt;Config&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="80" x="45" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-16" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" value="Metricas: Langgraph&lt;div&gt;Langsmith&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="80" x="540" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-25" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Agente Analisis Financiero" vertex="1">
+          <mxGeometry height="30" width="160" x="210" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-22" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="110" width="380" x="180" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-18" parent="Nl4rLFMiAEc3ASNfEBgi-22" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="110" width="380" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-20" parent="Nl4rLFMiAEc3ASNfEBgi-22" style="rounded=0;whiteSpace=wrap;html=1;" value="search_financial_data" vertex="1">
+          <mxGeometry height="50" width="146" x="20" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-21" parent="Nl4rLFMiAEc3ASNfEBgi-22" style="rounded=0;whiteSpace=wrap;html=1;" value="calculate_ratio" vertex="1">
+          <mxGeometry height="50" width="146" x="214" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Nl4rLFMiAEc3ASNfEBgi-30" parent="1" style="whiteSpace=wrap;html=1;verticalAlign=top;" value="Langsmith&lt;div&gt;(Metricas)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="400" y="70" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
